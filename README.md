@@ -40,6 +40,14 @@ Sample notebook images for the demo live in `samples/ledgers/`.
 
 Before a demo, or after changing the Gemini prompt, run `python test_gemini.py`. It checks that the API key works, a model answers, and the reply parses as JSON.
 
+## Android
+
+The phone app is in `mobile/`. It photographs a notebook and sends the picture to this computer, which calls Gemini. The API key stays in `.env`.
+
+1. `python extract_server.py` (listens on port 8765 for the phone)
+2. `cd mobile` then `flutter run`, or `flutter build apk`
+3. On an emulator the API address is `http://10.0.2.2:8765`. On a phone, use the laptop's Wi-Fi address, for example `http://192.168.100.100:8765`.
+
 ## Safeguards and limitations
 
 PocketLedger is AI-assisted indexing for micro-finance evaluation. It is not an IT audit, tax audit, or certified financial report, and it is not a loan decision. Images and recordings are processed in the session and are not stored permanently.
