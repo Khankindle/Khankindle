@@ -200,6 +200,14 @@ def persist_ledger(result: dict[str, Any]) -> None:
     st.session_state.saved_ledgers = profile["ledgers"]
 
 
+def latest_statement(ledgers: list[dict[str, Any]]) -> dict[str, Any] | None:
+    if not ledgers:
+        return None
+    latest = dict(ledgers[-1])
+    latest["transactions"] = [dict(row) for row in (latest.get("transactions") or [])]
+    return latest
+
+
 def restore_last_user() -> None:
     if st.session_state.onboarded:
         return
@@ -214,6 +222,7 @@ def restore_last_user() -> None:
     st.session_state.business_name = profile.get("business_name") or ""
     st.session_state.business_category = profile.get("business_category") or ""
     st.session_state.saved_ledgers = profile.get("ledgers") or []
+    st.session_state.result = latest_statement(st.session_state.saved_ledgers)
 
 
 def payment_mix_df(transactions: list[dict[str, Any]]) -> pd.DataFrame:
@@ -675,6 +684,8 @@ with cert_tab:
         date = result.get("date", "Unspecified")
         category = result.get("business_category") or st.session_state.business_category
         st.caption(f"{business} · {date}" + (f" · {category}" if category else ""))
+        if st.session_state.ledger_image is None and st.session_state.ledger_audio is None:
+            st.caption("Showing the last saved statement.")
         if result.get("capture_source") == "audio":
             st.badge("Spoken statement", icon=":material/mic:", color="blue")
         transcript = _plain(result.get("transcript"))
