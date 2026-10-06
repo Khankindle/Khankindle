@@ -1,0 +1,100 @@
+[
+  {
+    "file": "chipo-inkfree.png",
+    "handwriting_font": "Inkfree.ttf",
+    "title": "GOGO CHIPO FRESH PRODUCE \u2014 19 Sept 2026",
+    "lines": [
+      "1. 3 crates Tomatoes $12.00 (Cash)",
+      "2. 2 bags Onions $8.00 (Cash)",
+      "3. 5kg Potatoes $4.50 (Credit - Sekuru Peter)",
+      "4. 1 bunch Spinach $1.00 (Cash)",
+      "5. 4kg Bananas $6.00 (Credit - Amai Rudo)",
+      "Stall fee: $5.00"
+    ],
+    "expected_totals": {
+      "business_name": "Gogo Chipo Fresh Produce",
+      "date": "19 Sept 2026",
+      "total_cash_usd": 21.0,
+      "total_credit_outstanding_usd": 10.5,
+      "total_revenue_usd": 31.5
+    }
+  },
+  {
+    "file": "rudo-segoe-print.png",
+    "handwriting_font": "segoepr.ttf",
+    "title": "MAI RUDO TUCKSHOP \u2014 19 Sept 2026",
+    "lines": [
+      "1. 2x Cooking oil $8.50 (Cash)",
+      "2. 4 loaves Bread $4.80 (Cash)",
+      "3. 10kg Maize meal $7.00 (Credit - Baba Tawanda)",
+      "4. 1kg Sugar $2.20 (Cash)",
+      "5. 3x Soap $3.00 (Credit - Mai Tendai)",
+      "Paid rent: $12.00"
+    ],
+    "expected_totals": {
+      "business_name": "Mai Rudo Tuckshop",
+      "date": "19 Sept 2026",
+      "total_cash_usd": 15.5,
+      "total_credit_outstanding_usd": 10.0,
+      "total_revenue_usd": 25.5
+    }
+  },
+  {
+    "file": "taku-lucida.png",
+    "handwriting_font": "LHANDW.TTF",
+    "title": "BABA TAKU KITCHEN \u2014 19 Sept 2026",
+    "lines": [
+      "1. 5 plates sadza & stew $15.00 (Cash)",
+      "2. 2x chips $3.00 (Cash)",
+      "3. 3x maheu $2.40 (Cash)",
+      "4. 4 plates chicken $16.00 (Credit - Amai Lindiwe)",
+      "Oil stock: $6.00 (Expense)"
+    ],
+    "expected_totals": {
+      "business_name": "Baba Taku Kitchen",
+      "date": "19 Sept 2026",
+      "total_cash_usd": 20.4,
+      "total_credit_outstanding_usd": 16.0,
+      "total_revenue_usd": 36.4
+    }
+  },
+  {
+    "file": "noma-comic.png",
+    "handwriting_font": "comic.ttf",
+    "title": "AMAI NOMA FASHIONS \u2014 19 Sept 2026",
+    "lines": [
+      "1. 2 wrap dresses $18.00 (Cash)",
+      "2. 1 mens shirt $6.50 (Cash)",
+      "3. 3 headwraps $9.00 (Credit - Mai Chipo)",
+      "4. 1 pair sandals $5.00 (Cash)",
+      "5. Alteration $2.00 (Cash)",
+      "Kombi transport: $3.50 (Expense)"
+    ],
+    "expected_totals": {
+      "business_name": "Amai Noma Fashions",
+      "date": "19 Sept 2026",
+      "total_cash_usd": 31.5,
+      "total_credit_outstanding_usd": 9.0,
+      "total_revenue_usd": 40.5
+    }
+  },
+  {
+    "file": "farai-script.png",
+    "handwriting_font": "SCRIPTBL.TTF",
+    "title": "BABA FARAI AIRTIME \u2014 19 Sept 2026",
+    "lines": [
+      "1. EcoCash float top-up $20.00 (Cash)",
+      "2. 5x $2 airtime $10.00 (Cash)",
+      "3. Phone charger $4.00 (Credit - Tino)",
+      "4. SIM swap $1.50 (Cash)",
+      "Shop light tokens: $3.00 (Expense)"
+    ],
+    "expected_totals": {
+      "business_name": "Baba Farai Airtime",
+      "date": "19 Sept 2026",
+      "total_cash_usd": 31.5,
+      "total_credit_outstanding_usd": 4.0,
+      "total_revenue_usd": 35.5
+    }
+  }
+]
