@@ -4,6 +4,8 @@ from typing import Any
 
 from google import genai
 
+from health_summary import strip_score_claims
+
 MODEL_NAME = "gemini-3.6-flash"
 FALLBACK_MODELS = (
     "gemini-3.5-flash",
@@ -62,6 +64,7 @@ Rules:
 - When a customer pays back earlier chikwereti, use payment_type "Repayment" with the customer's name as debtor. Repayments are not new sales.
 - Interpret items in the context of the selected business category.
 - Write summary_shona and summary_ndebele in spoken market language, not formal or literary style.
+- Do not give any score, rating, grade, creditworthiness verdict, or loan amount in the summaries. PocketLedger calculates the official business health score separately and adds it.
 {invent_rule}
 - Do not include markdown code fences. Return pure JSON text only.
 """
@@ -175,6 +178,9 @@ def normalize_extraction(
     extracted_name = _plain(data.get("business_name"))
     if business_name and (not extracted_name or extracted_name == "Unspecified"):
         data["business_name"] = business_name
+    # Gemini must not state a score; remove any sentence that does before fallbacks are applied.
+    for key in ("business_health_summary", "summary_shona", "summary_ndebele"):
+        data[key] = strip_score_claims(data.get(key))
     attach_local_summaries(data)
     data["transcript"] = _plain(data.get("transcript"))
     data["business_health_summary"] = _plain(data.get("business_health_summary"))

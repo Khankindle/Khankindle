@@ -57,6 +57,7 @@ class _CapturePageState extends State<CapturePage> {
   String _language = 'English';
   XFile? _photo;
   Map<String, dynamic>? _result;
+  Map<String, dynamic>? _health;
   String? _error;
   bool _busy = false;
 
@@ -81,6 +82,33 @@ class _CapturePageState extends State<CapturePage> {
     });
   }
 
+  String get _baseUrl => _server.text.trim().replaceAll(RegExp(r'/+$'), '');
+
+  /// Fetches the Business Health Score for this trader without a new capture.
+  Future<void> _checkScore() async {
+    if (_busy) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      final uri = Uri.parse('$_baseUrl/api/health').replace(
+        queryParameters: {'business_name': _name.text.trim(), 'category': _category},
+      );
+      final response = await http.get(uri);
+      final body = jsonDecode(response.body);
+      if (response.statusCode != 200 || body is! Map<String, dynamic>) {
+        throw Exception('Could not load the health score.');
+      }
+      final health = body['health'];
+      setState(() => _health = health is Map<String, dynamic> ? health : null);
+    } catch (error) {
+      setState(() => _error = error.toString().replaceFirst('Exception: ', ''));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   Future<void> _extract() async {
     final photo = _photo;
     if (photo == null || _busy) return;
@@ -90,7 +118,7 @@ class _CapturePageState extends State<CapturePage> {
     });
     try {
       final bytes = await photo.readAsBytes();
-      final uri = Uri.parse('${_server.text.trim().replaceAll(RegExp(r'/+$'), '')}/api/extract');
+      final uri = Uri.parse('$_baseUrl/api/extract');
       final response = await http.post(
         uri,
         headers: {'Content-Type': 'application/json'},
@@ -109,7 +137,11 @@ class _CapturePageState extends State<CapturePage> {
       if (response.statusCode != 200) {
         throw Exception(body['error'] ?? 'Could not read the ledger.');
       }
-      setState(() => _result = body);
+      final health = body['health'];
+      setState(() {
+        _result = body;
+        _health = health is Map<String, dynamic> ? health : null;
+      });
     } catch (error) {
       setState(() => _error = error.toString().replaceFirst('Exception: ', ''));
     } finally {
@@ -177,6 +209,18 @@ class _CapturePageState extends State<CapturePage> {
               border: OutlineInputBorder(),
             ),
           ),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: _busy ? null : _checkScore,
+              icon: const Icon(Icons.insights_outlined),
+              label: const Text('Check health score'),
+            ),
+          ),
+          if (_health != null && result == null) ...[
+            HealthCard(health: _health!, language: _language),
+          ],
           const SizedBox(height: 16),
           Row(
             children: [
@@ -231,6 +275,10 @@ class _CapturePageState extends State<CapturePage> {
             _Metric(label: 'Cash received', value: _money(result['total_cash_usd'])),
             _Metric(label: 'Outstanding credit', value: _money(result['total_credit_outstanding_usd'])),
             const SizedBox(height: 12),
+            if (_health != null) ...[
+              HealthCard(health: _health!, language: _language),
+              const SizedBox(height: 12),
+            ],
             Text(_summary(result)),
             const SizedBox(height: 16),
             Text('Transactions', style: Theme.of(context).textTheme.titleMedium),
@@ -270,6 +318,82 @@ class _Metric extends StatelessWidget {
           Text(label),
           Text(value, style: Theme.of(context).textTheme.titleMedium),
         ],
+      ),
+    );
+  }
+}
+
+/// Business Health Score card (SPEC.md §7). `health` is the `health` object from the API.
+class HealthCard extends StatelessWidget {
+  const HealthCard({super.key, required this.health, required this.language});
+
+  final Map<String, dynamic> health;
+  final String language;
+
+  String _money(dynamic value) {
+    final number = value is num ? value.toDouble() : double.tryParse('$value') ?? 0;
+    return '\$${number.toStringAsFixed(2)}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final score = health['score'];
+    final status = '${health['status'] ?? 'Not enough data'}';
+    final window = health['window'];
+    final days = window is Map ? window['trading_days'] ?? 0 : 0;
+
+    final children = <Widget>[
+      Text('Business health score', style: theme.textTheme.titleMedium),
+      const SizedBox(height: 8),
+    ];
+
+    if (score == null) {
+      children.add(Text('Record ${health['record_more_days'] ?? 5} more trading day(s) to get your score.'));
+      children.add(Text('$days trading day(s) recorded so far.', style: theme.textTheme.bodySmall));
+    } else {
+      final bands = health['band_local'];
+      final band = bands is Map ? '${bands[language] ?? health['band']}' : '${health['band']}';
+      children.add(Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text('$score/100',
+              style: theme.textTheme.headlineMedium?.copyWith(color: theme.colorScheme.primary)),
+          const SizedBox(width: 12),
+          Flexible(child: Text(band, style: theme.textTheme.titleMedium)),
+        ],
+      ));
+      children.add(Text('$status · ${health['evidence_level'] ?? 'Self-reported'} · $days trading days',
+          style: theme.textTheme.bodySmall));
+
+      final actions = health['actions'];
+      if (actions is List && actions.isNotEmpty) {
+        children.add(const SizedBox(height: 8));
+        children.add(Text('What is lowering your score', style: theme.textTheme.labelLarge));
+        for (final action in actions) {
+          if (action is Map) children.add(Text('• ${action['English'] ?? ''}'));
+        }
+      }
+
+      final affordability = health['affordability'];
+      if (affordability is Map) {
+        children.add(const SizedBox(height: 8));
+        children.add(Text(
+          'Safe daily repayment up to ${_money(affordability['safe_daily_repayment_usd'])}. '
+          '30-day total up to ${_money(affordability['indicative_amount_30d_usd'])}.',
+        ));
+        children.add(Text('${affordability['note'] ?? ''}', style: theme.textTheme.bodySmall));
+      }
+    }
+
+    children.add(const SizedBox(height: 8));
+    children.add(Text('Health score, not a credit score or a loan decision.', style: theme.textTheme.bodySmall));
+
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
       ),
     );
   }

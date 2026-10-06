@@ -1,17 +1,15 @@
-# pocketledger
+# PocketLedger Android app
 
-A new Flutter project.
+Flutter client that photographs a notebook page and sends it to `extract_server.py` on the laptop. The Gemini key never goes on the phone.
 
-## Getting Started
+- **Process ledger** sends the photo to `POST /api/extract`. The reply includes the statement and the trader's Business Health Score, shown in a card above the summary.
+- **Check health score** calls `GET /api/health` for the business name and category on screen, without a new photo.
+- Captures join the same history as the Streamlit app when the business name and category match.
 
-This project is a starting point for a Flutter application.
+```
+flutter pub get
+flutter test        # widget tests, including the health score card
+flutter run         # or: flutter build apk
+```
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+See the main [README](../README.md#android) for the server address to use on an emulator or a phone.

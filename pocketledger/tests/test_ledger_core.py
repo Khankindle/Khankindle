@@ -16,3 +16,17 @@ def test_repayment_is_not_a_new_sale():
     ]
     revenue, cash, credit = recompute_totals(rows)
     assert (revenue, cash, credit) == (12.0, 5.0, 7.0)
+
+
+def test_gemini_score_claims_are_stripped_at_extraction():
+    from ledger_core import normalize_extraction
+
+    data = {
+        "transactions": [{"item": "Bread", "amount_usd": 5.0, "payment_type": "Cash"}],
+        "business_health_summary": "Cash is steady with no credit risk. Health score: 92/100.",
+        "summary_shona": "Mari yese yakabhadharwa cash nhasi, hapana chikwereti. Score 92/100.",
+        "summary_ndebele": "Imali yonke ikhokhwe ngokheshi namhlanje, asikho isikwelete.",
+    }
+    out = normalize_extraction(data, "image", "Shop", "Other")
+    assert out["business_health_summary"] == "Cash is steady with no credit risk."
+    assert "92" not in out["summary_shona"]

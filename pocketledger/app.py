@@ -26,8 +26,10 @@ from ledger_core import (
     run_gemini_extraction,
     to_float,
 )
+import ledger_store
 from health_score import COMPONENT_LABELS, HEALTH_CONFIG, STATUS_NOTES
 from health_score import compute as compute_health
+from health_summary import summaries_with_health
 from projection import project_ledger_history, projection_headline, projection_local_summaries
 
 load_dotenv()
@@ -136,71 +138,30 @@ def extract_structured_ledger(
 
 
 
-DATA_DIR = Path(os.environ.get("POCKETLEDGER_DATA_DIR") or Path(__file__).resolve().parent / "data")
-STORE_PATH = DATA_DIR / "ledger_store.json"
-
-
-def user_id_for(name: str, category: str) -> str:
-    slug = re.sub(r"[^a-z0-9]+", "_", f"{name}_{category}".lower()).strip("_")
-    return slug or "unnamed_trader"
-
-
-def load_store() -> dict[str, Any]:
-    if STORE_PATH.exists():
-        try:
-            return json.loads(STORE_PATH.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            return {"users": {}, "last_user_id": None}
-    return {"users": {}, "last_user_id": None}
-
-
-def save_store(store: dict[str, Any]) -> None:
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    STORE_PATH.write_text(json.dumps(store, indent=2), encoding="utf-8")
+# The store is shared with extract_server.py so phone captures join the same trader history.
+user_id_for = ledger_store.user_id_for
+load_store = ledger_store.load_store
 
 
 def persist_user_profile() -> None:
-    store = load_store()
-    uid = st.session_state.user_id
-    users = store.setdefault("users", {})
-    profile = users.setdefault(uid, {"ledgers": []})
-    profile["business_name"] = st.session_state.business_name
-    profile["business_category"] = st.session_state.business_category
-    store["last_user_id"] = uid
-    save_store(store)
+    ledger_store.save_profile(
+        st.session_state.user_id, st.session_state.business_name, st.session_state.business_category
+    )
 
 
 def persist_ledger(result: dict[str, Any]) -> None:
-    snapshot = {
-        "processed_at": datetime.now().isoformat(timespec="seconds"),
-        "business_name": result.get("business_name"),
-        "business_category": result.get("business_category"),
-        "date": result.get("date"),
-        "capture_source": result.get("capture_source"),
-        "transcript": result.get("transcript"),
-        "total_revenue_usd": round(to_float(result.get("total_revenue_usd")), 2),
-        "total_cash_usd": round(to_float(result.get("total_cash_usd")), 2),
-        "total_credit_outstanding_usd": round(to_float(result.get("total_credit_outstanding_usd")), 2),
-        "transactions": result.get("transactions") or [],
-        "business_health_summary": result.get("business_health_summary"),
-        "summary_shona": result.get("summary_shona"),
-        "summary_ndebele": result.get("summary_ndebele"),
-    }
-    store = load_store()
-    uid = st.session_state.user_id
-    users = store.setdefault("users", {})
-    profile = users.setdefault(
-        uid,
-        {
-            "business_name": st.session_state.business_name,
-            "business_category": st.session_state.business_category,
-            "ledgers": [],
-        },
+    st.session_state.saved_ledgers = ledger_store.append_ledger(
+        st.session_state.user_id,
+        st.session_state.business_name,
+        st.session_state.business_category,
+        result,
     )
-    profile.setdefault("ledgers", []).append(snapshot)
-    store["last_user_id"] = uid
-    save_store(store)
-    st.session_state.saved_ledgers = profile["ledgers"]
+
+
+def refresh_saved_ledgers() -> None:
+    """Pick up statements saved by the phone app since this session started."""
+    if st.session_state.onboarded and st.session_state.user_id:
+        st.session_state.saved_ledgers = ledger_store.get_ledgers(st.session_state.user_id)
 
 
 def latest_statement(ledgers: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -293,6 +254,7 @@ st.session_state.setdefault("business_category", "")
 st.session_state.setdefault("user_id", "")
 st.session_state.setdefault("saved_ledgers", [])
 restore_last_user()
+refresh_saved_ledgers()
 
 
 @st.cache_resource
@@ -444,6 +406,8 @@ st.html(
     </style>
     """
 )
+health = current_health()
+
 with st.sidebar:
     st.header("PocketLedger")
     st.caption("Cash versus chikwereti for informal traders.")
@@ -468,7 +432,17 @@ with st.sidebar:
             help="Used on the certificate and to give Gemini the right trade context.",
         )
         persist_user_profile()
-        st.metric("Saved statements", len(st.session_state.saved_ledgers), border=True)
+        saved_col, score_col = st.columns(2)
+        saved_col.metric("Saved", len(st.session_state.saved_ledgers), border=True)
+        if health and health.get("score") is not None:
+            score_col.metric("Health score", f"{health['score']}/100", border=True)
+            st.badge(
+                f"{health.get('band')} · {health.get('status')}",
+                color=BAND_COLORS.get(health.get("band"), "gray"),
+            )
+        elif health:
+            score_col.metric("Health score", "—", border=True)
+            st.caption(f"Record {health.get('record_more_days')} more trading day(s) to get a score.")
         st.selectbox(
             "Summary language",
             ["ChiShona", "IsiNdebele", "English"],
@@ -476,17 +450,25 @@ with st.sidebar:
             persist_state="session",
         )
         st.subheader("Chikwereti")
-        credit_rows = [
-            row
-            for row in ((st.session_state.result or {}).get("transactions") or [])
-            if "credit" in str(row.get("payment_type") or "").lower()
-            and row.get("debtor") not in (None, "", "N/A")
-        ]
-        if credit_rows:
-            for row in credit_rows:
-                st.caption(f"{row.get('debtor')}  ·  {_money(row.get('amount_usd'))}")
+        book = (health or {}).get("credit_book") or {}
+        if book.get("by_debtor"):
+            # Running balance across all saved pages, after repayments (oldest credit cleared first).
+            for name, amount in book["by_debtor"].items():
+                st.caption(f"{name}  ·  {_money(amount)}")
+            if book.get("aged_over_30_days_usd"):
+                st.caption(f"{_money(book['aged_over_30_days_usd'])} is older than 30 days.")
         else:
-            st.caption("No outstanding credit yet. Process a ledger to list debtors here.")
+            credit_rows = [
+                row
+                for row in ((st.session_state.result or {}).get("transactions") or [])
+                if "credit" in str(row.get("payment_type") or "").lower()
+                and row.get("debtor") not in (None, "", "N/A")
+            ]
+            if credit_rows:
+                for row in credit_rows:
+                    st.caption(f"{row.get('debtor')}  ·  {_money(row.get('amount_usd'))}")
+            else:
+                st.caption("No outstanding credit yet. Process a ledger to list debtors here.")
     with st.expander("Responsible AI", icon=":material/shield:"):
         st.caption(DISCLAIMER)
 
@@ -534,7 +516,6 @@ if not st.session_state.onboarded:
 
 result = st.session_state.result
 summary_lang = current_summary_language()
-health = current_health()
 if result:
     attach_local_summaries(result)
 
@@ -584,11 +565,7 @@ with overview_tab:
             if not items.empty:
                 st.bar_chart(items.head(8), x="Item", y="Amount")
         st.subheader("Market language summary")
-        summaries = {
-            "English": result.get("business_health_summary") or "Summary unavailable.",
-            "ChiShona": result.get("summary_shona") or "Hapana pfupiso.",
-            "IsiNdebele": result.get("summary_ndebele") or "Asikho isifinyezo.",
-        }
+        summaries = summaries_with_health(result, health)
         english_col, shona_col, ndebele_col = st.columns(3)
         with english_col:
             st.markdown("**English**")
@@ -813,11 +790,7 @@ with cert_tab:
         if transcript:
             with st.expander("Spoken transcript", icon=":material/record_voice_over:"):
                 st.write(transcript)
-        summaries = {
-            "English": result.get("business_health_summary") or "Summary unavailable.",
-            "ChiShona": result.get("summary_shona") or "Hapana pfupiso.",
-            "IsiNdebele": result.get("summary_ndebele") or "Asikho isifinyezo.",
-        }
+        summaries = summaries_with_health(result, health)
         english_col, shona_col, ndebele_col = st.columns(3)
         with english_col:
             st.markdown("**English**")

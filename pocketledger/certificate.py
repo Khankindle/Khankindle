@@ -8,6 +8,7 @@ from typing import Any
 from fpdf import FPDF
 
 from health_score import COMPONENT_LABELS, HEALTH_CONFIG, STATUS_NOTES
+from health_summary import summaries_with_health
 from ledger_core import _money, _plain
 
 # Built-in PDF fonts (Helvetica) only cover Latin-1. Map common Unicode punctuation so the
@@ -140,18 +141,19 @@ def build_statement_pdf(result: dict[str, Any], health: dict[str, Any] | None = 
     pdf.set_text_color(*navy)
     pdf.cell(0, 8, "Financial health certificate", new_x="LMARGIN", new_y="NEXT")
     pdf.set_font(font_name, "", 11)
-    summary = _plain(result.get("business_health_summary")) or "Summary unavailable."
-    pdf.multi_cell(0, 6, summary)
+    # Gemini narrative with any score claims removed, plus the official score sentence.
+    summaries = summaries_with_health(result, health)
+    pdf.multi_cell(0, 6, summaries["English"])
     pdf.ln(3)
     pdf.set_font(font_name, "B", 12)
     pdf.cell(0, 7, "ChiShona", new_x="LMARGIN", new_y="NEXT")
     pdf.set_font(font_name, "", 11)
-    pdf.multi_cell(0, 6, _plain(result.get("summary_shona")) or "Hapana pfupiso.")
+    pdf.multi_cell(0, 6, summaries["ChiShona"])
     pdf.ln(2)
     pdf.set_font(font_name, "B", 12)
     pdf.cell(0, 7, "IsiNdebele", new_x="LMARGIN", new_y="NEXT")
     pdf.set_font(font_name, "", 11)
-    pdf.multi_cell(0, 6, _plain(result.get("summary_ndebele")) or "Asikho isifinyezo.")
+    pdf.multi_cell(0, 6, summaries["IsiNdebele"])
     pdf.ln(4)
     pdf.set_font(font_name, "", 9)
     pdf.set_text_color(*muted)

@@ -56,9 +56,16 @@ The phone app is in `mobile/`. It photographs a notebook and sends the picture t
 2. `cd mobile` then `flutter run`, or `flutter build apk`
 3. On an emulator the API address is `http://10.0.2.2:8765`. On a phone, use the laptop's Wi-Fi address, for example `http://192.168.100.100:8765`.
 
+Each phone capture is saved to the same trader history as the Streamlit app (matched on business name and category), and the reply includes the Business Health Score. The phone shows the score after every capture, and **Check health score** fetches it without a new photo.
+
+| Endpoint | Purpose |
+| --- | --- |
+| `POST /api/extract` | Body: `source`, `mime_type`, `data` (base64), `business_name`, `category`, optional `save` (default `true`). Returns the statement, `health`, `trader_id`, `saved`, `saved_statements`. Summaries end with the official score sentence. |
+| `GET /api/health?business_name=…&category=…` | Current health score for a trader, without a capture. |
+
 ## Safeguards and limitations
 
-PocketLedger is AI-assisted indexing for micro-finance evaluation. It is not an IT audit, tax audit, or certified financial report, and it is not a loan decision. Images and recordings are processed in the session and are not stored permanently.
+PocketLedger is AI-assisted indexing for micro-finance evaluation. It is not an IT audit, tax audit, or certified financial report, and it is not a loan decision. Images and recordings are processed in the session and are not stored permanently. Extracted statements (JSON only) are kept in `data/ledger_store.json` on the computer running the app, so the health score can use the trader's history. Delete that file to remove all history.
 
 ## Hack Day build boundary
 

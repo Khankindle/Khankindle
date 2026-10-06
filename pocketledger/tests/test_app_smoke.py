@@ -62,10 +62,25 @@ def test_overview_shows_established_score(tmp_path, monkeypatch):
 def test_overview_asks_for_more_days(tmp_path, monkeypatch):
     at = _run(tmp_path, monkeypatch, _recent_ledgers(3))
     assert any("Record 2 more trading day(s)" in i.value for i in at.info)
-    assert "Health score" not in {m.label for m in at.metric}
+    # The sidebar shows the Health score box with a dash until there is enough history.
+    assert [m.value for m in at.metric if m.label == "Health score"] == ["—"]
 
 
 def test_certificate_tab_shows_score_line(tmp_path, monkeypatch):
     at = _run(tmp_path, monkeypatch, _recent_ledgers(20))
     markdown = " ".join(m.value for m in at.markdown)
     assert "Business health score:" in markdown and "Provisional" in markdown
+
+
+def test_sidebar_and_summaries_quote_the_same_score(tmp_path, monkeypatch):
+    ledgers = _recent_ledgers(44)
+    ledgers[-1]["business_health_summary"] = "Strong cash day. Gemini thinks your score is 12/100."
+    at = _run(tmp_path, monkeypatch, ledgers)
+    main_score = next(m.value for m in at.main.metric if m.label == "Health score")
+    sidebar_score = next(m.value for m in at.sidebar.metric if m.label == "Health score")
+    assert main_score == sidebar_score
+    markdown = " ".join(m.value for m in at.markdown)
+    assert "12/100" not in markdown
+    assert f"Business health score: {main_score}" in markdown
+    sidebar_text = " ".join(c.value for c in at.sidebar.caption)
+    assert "Mai Tinashe" in sidebar_text  # running credit book, not just the last page

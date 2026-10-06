@@ -2,7 +2,7 @@
 
 Status: **Draft v2** (post-hackathon) · Replaces `project.md` (hackathon-day master document, kept on tag `hackathon-submission-2026-09-19` in `fabber04/czi-hackathon`).
 
-This spec covers what PocketLedger does **today** (§1–§6) and the **Business Health Score** (§7). The scoring engine is implemented in `health_score.py` and shown on the Overview tab, the Certificate tab, and the PDF. Still to do from §7.7: passing the score to the Gemini summary, and the Android API. The health score design is based on research into how Moniepoint judges small businesses for working-capital loans (§11).
+This spec covers what PocketLedger does **today** (§1–§6) and the **Business Health Score** (§7). The scoring engine is implemented in `health_score.py` and reaches every surface: the Overview tab, the sidebar, the Certificate tab, the PDF, the three-language summaries, the extract API, and the Android app. The health score design is based on research into how Moniepoint judges small businesses for working-capital loans (§11).
 
 ---
 
@@ -44,7 +44,9 @@ Streamlit app (app.py) ──photo / voice────────────�
 | `projection.py` | Least-squares 7-day forecast of revenue, cash, and credit |
 | `health_score.py` | Business Health Score (§7): pre-qualification, history gate, components, reasons, affordability guide |
 | `certificate.py` | PDF certificate (fpdf2) |
-| `extract_server.py` | JSON HTTP API for the Android app; the Gemini key stays on the laptop |
+| `extract_server.py` | JSON HTTP API for the Android app (`POST /api/extract`, `GET /api/health`); the Gemini key stays on the laptop |
+| `ledger_store.py` | Trader profiles and saved ledgers in `data/ledger_store.json`, shared by the app and the API |
+| `health_summary.py` | Removes score claims from Gemini text and adds the official score sentence in three languages |
 | `mobile/` | Flutter Android client |
 | `test_gemini.py` | Checks the key, the model, and that the reply parses as JSON |
 
@@ -235,8 +237,10 @@ health = compute(saved_ledgers, profile={"trading_days_per_week": 6}, as_of=date
 - Recomputed from the saved ledger history on every app run, with `as_of = today` (fast enough: about 60 ms for 1,000 ledgers).
 - **Overview tab (built):** score and band (band in the chosen summary language), status and evidence badges, a progress bar per component, reasons and strength, the affordability guide, and an expander with the credit book and excluded entries. With fewer than 5 trading days it shows how many more days to record.
 - **Certificate tab / PDF (built):** the tab shows a one-line score summary. The PDF has a "Business health score" block between the totals and the transactions: score, band in three languages, status, evidence level, window, component table, outstanding and aged credit, reasons, excluded entries by reason, the affordability guide (or why it is hidden), and the method version. A footer on **every page** repeats the score, `score_version`, and the disclaimer. The score covers all saved pages, and the PDF says so.
-- **Gemini summary:** `business_health_summary`, `summary_shona`, and `summary_ndebele` are given the computed `health` object as context and must quote the score and band exactly. They must never produce a different number.
-- **Android:** `/api/extract` response gains `health` when the server has history for that trader (future; the server is currently stateless).
+- **Summaries (built):** the score is calculated *after* extraction, so Gemini cannot quote it. Instead, Gemini is told not to give any score, rating, grade, or loan amount, and `health_summary.strip_score_claims` removes any sentence that does anyway. Python then appends the official score sentence in English, ChiShona, and IsiNdebele (score, band, trading days, provisional note, and in English the top action). This is applied wherever summaries are shown, so the app, the PDF, and the phone always quote the same number. Re-applying it is safe (idempotent). ChiShona and IsiNdebele templates need native-speaker review.
+- **Sidebar (built):** health score, band and status, and the running *chikwereti* balance per debtor from the credit book (after repayments) instead of only the last page's credit lines.
+- **Extract API (built):** captures are saved to the shared store under `user_id_for(business_name, category)`, the same key the Streamlit app uses, without changing which trader the app opens with. Every `POST /api/extract` reply includes `health`, and `GET /api/health` returns it without a capture. `save: false` scores the page without storing it. Both processes write the store atomically. Simultaneous writes from the app and the API can still overwrite each other's latest page; move to SQLite if that becomes a real risk.
+- **Android (built, not compiled in CI):** a `HealthCard` widget shows the score, band in the selected language, status, actions, and affordability guide after each capture. A **Check health score** button calls `GET /api/health`. Widget tests are in `mobile/test/widget_test.dart`.
 
 ### 7.8 Acceptance criteria
 
