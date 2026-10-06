@@ -24,6 +24,12 @@ Informal traders keep daily sales and *chikwereti* (customer credit) in paper no
 
 Sample notebook images for the demo live in `samples/ledgers/`.
 
+## Specification
+
+See [`SPEC.md`](SPEC.md) for the product and technical spec, including the planned **Business Health Score** (based on research into how Moniepoint assesses merchants) and its acceptance criteria.
+
+> This copy lives in the `pocketledger/` folder of `Khankindle/Khankindle`. Run the commands below from inside `pocketledger/`. The GitHub Pages workflow in `pocketledger/.github/` only runs from the original `fabber04/czi-hackathon` repository.
+
 ## Gemini integration and tech stack
 
 - **Multimodal vision and audio:** Reads non-standard notebook layouts and spoken market language.
