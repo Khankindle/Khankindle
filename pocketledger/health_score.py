@@ -78,6 +78,21 @@ HEALTH_CONFIG: dict[str, Any] = {
     ],
 }
 
+COMPONENT_LABELS: dict[str, str] = {
+    "recording_consistency": "Recording consistency",
+    "sales_stability": "Sales stability",
+    "cash_conversion": "Cash conversion",
+    "credit_health": "Credit (chikwereti) health",
+    "expense_coverage": "Expense coverage",
+    "growth_trend": "Growth trend",
+}
+
+STATUS_NOTES: dict[str, str] = {
+    "Not enough data": "Fewer than 5 trading days recorded, so there is no score yet.",
+    "Provisional": "Fewer than 14 trading days over 6 weeks. The score may change as more days are recorded.",
+    "Established": "At least 14 trading days recorded over 6 weeks or more.",
+}
+
 NON_BUSINESS_PAYMENT_TYPES = ("personal", "transfer", "loan received", "owner", "top-up by owner")
 
 DISCLAIMER = "Guide only — not a loan offer. A lender will do its own checks."

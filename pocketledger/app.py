@@ -3,6 +3,7 @@ import io
 import json
 import os
 import re
+from datetime import date as calendar_date
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -25,6 +26,8 @@ from ledger_core import (
     run_gemini_extraction,
     to_float,
 )
+from health_score import COMPONENT_LABELS, HEALTH_CONFIG, STATUS_NOTES
+from health_score import compute as compute_health
 from projection import project_ledger_history, projection_headline, projection_local_summaries
 
 load_dotenv()
@@ -133,7 +136,7 @@ def extract_structured_ledger(
 
 
 
-DATA_DIR = Path(__file__).resolve().parent / "data"
+DATA_DIR = Path(os.environ.get("POCKETLEDGER_DATA_DIR") or Path(__file__).resolve().parent / "data")
 STORE_PATH = DATA_DIR / "ledger_store.json"
 
 
@@ -310,6 +313,120 @@ def resolve_api_key() -> str:
         return ""
 
 
+BAND_COLORS = {"Strong": "green", "Good": "blue", "Fair": "orange", "Building": "red"}
+STATUS_ICONS = {
+    "Established": ":material/verified:",
+    "Provisional": ":material/hourglass_top:",
+    "Not enough data": ":material/pending:",
+}
+
+
+def current_health() -> dict[str, Any] | None:
+    """Business health score over all saved ledgers (SPEC.md §7). Today's date is passed so that
+    recent days without records count against recording consistency."""
+    ledgers = st.session_state.saved_ledgers
+    if not ledgers:
+        return None
+    return compute_health(
+        ledgers,
+        profile={"trading_days_per_week": HEALTH_CONFIG["default_trading_days_per_week"]},
+        as_of=calendar_date.today(),
+    )
+
+
+def render_health_section(health: dict[str, Any], language: str) -> None:
+    st.subheader("Business health score")
+    window = health.get("window") or {}
+    status = health.get("status") or "Not enough data"
+    score = health.get("score")
+
+    if score is None:
+        days = window.get("trading_days", 0) if window else 0
+        needed = HEALTH_CONFIG["min_days_for_score"]
+        st.info(
+            f"Record {health.get('record_more_days', needed)} more trading day(s) to get your score.",
+            icon=":material/pending:",
+        )
+        st.progress(min(1.0, days / needed), text=f"{days} of {needed} trading days recorded")
+        return
+
+    band = health.get("band") or ""
+    band_local = (health.get("band_local") or {}).get(language) or band
+    left, middle, right = st.columns((1, 1, 2))
+    left.metric("Health score", f"{score}/100", border=True)
+    middle.metric("Band", band_local if language == "English" else f"{band_local} ({band})", border=True)
+    with right:
+        with st.container(horizontal=True):
+            st.badge(status, icon=STATUS_ICONS.get(status), color="green" if status == "Established" else "orange")
+            st.badge(health.get("evidence_level") or "Self-reported", icon=":material/fact_check:", color="gray")
+            st.badge(band, color=BAND_COLORS.get(band, "gray"))
+        st.caption(
+            f"{STATUS_NOTES.get(status, '')} Window {window.get('start')} to {window.get('end')}, "
+            f"{window.get('trading_days')} trading days."
+        )
+
+    components = health.get("components") or {}
+    weights = HEALTH_CONFIG["weights"]
+    comp_left, comp_right = st.columns(2)
+    for index, (key, weight) in enumerate(weights.items()):
+        value = int(components.get(key, 0))
+        column = comp_left if index % 2 == 0 else comp_right
+        column.progress(value / 100, text=f"{COMPONENT_LABELS[key]} · {value}/100 · weight {weight}%")
+
+    reasons_col, guide_col = st.columns(2)
+    with reasons_col:
+        actions = health.get("actions") or []
+        if actions:
+            st.markdown("**What is lowering your score**")
+            for action in actions:
+                st.markdown(f"- **{COMPONENT_LABELS.get(action['component'], action['component'])}:** {action['English']}")
+        strength = health.get("strength")
+        if strength:
+            st.markdown(f"**Your strength:** {COMPONENT_LABELS.get(strength, strength)}")
+    with guide_col:
+        affordability = health.get("affordability")
+        st.markdown("**Affordability guide**")
+        if affordability:
+            g1, g2 = st.columns(2)
+            g1.metric("Safe daily repayment", affordability["safe_daily_repayment_usd"], format="dollar", border=True)
+            g2.metric("30-day total", affordability["indicative_amount_30d_usd"], format="dollar", border=True)
+            st.caption(affordability.get("note", ""))
+        else:
+            st.caption(
+                "Shown once the score is Established, 50 or more, and daily net cash is positive."
+            )
+
+    book = health.get("credit_book") or {}
+    excluded = health.get("excluded") or []
+    if book.get("by_debtor") or excluded:
+        with st.expander("Credit book and excluded entries", icon=":material/receipt_long:"):
+            if book.get("by_debtor"):
+                st.caption(
+                    f"Outstanding {_money(book.get('outstanding_usd'))}, "
+                    f"of which {_money(book.get('aged_over_30_days_usd'))} is older than 30 days."
+                )
+                st.dataframe(
+                    pd.DataFrame(
+                        [{"Debtor": name, "Owes (USD)": amount} for name, amount in book["by_debtor"].items()]
+                    ),
+                    hide_index=True,
+                    column_config={"Owes (USD)": st.column_config.NumberColumn(format="dollar")},
+                )
+            if excluded:
+                st.caption(f"{len(excluded)} entr{'y' if len(excluded) == 1 else 'ies'} left out of the score.")
+                st.dataframe(
+                    pd.DataFrame(excluded).rename(
+                        columns={"date": "Date", "item": "Item", "amount_usd": "Amount (USD)", "reason": "Reason"}
+                    ),
+                    hide_index=True,
+                    column_config={"Amount (USD)": st.column_config.NumberColumn(format="dollar")},
+                )
+    st.caption(
+        f"Rule-based health score ({health.get('score_version')}) from all saved pages. "
+        "Not a credit score and not a loan decision."
+    )
+
+
 DISCLAIMER = (
     "PocketLedger is AI-assisted indexing of a notebook or spoken statement. "
     "It is not an IT audit, tax audit, or certified financial report, and it is not a loan decision. "
@@ -417,6 +534,7 @@ if not st.session_state.onboarded:
 
 result = st.session_state.result
 summary_lang = current_summary_language()
+health = current_health()
 if result:
     attach_local_summaries(result)
 
@@ -436,6 +554,9 @@ overview_tab, capture_tab, tx_tab, cert_tab = st.tabs(
 )
 
 with overview_tab:
+    if health:
+        render_health_section(health, summary_lang)
+        st.divider()
     if not result:
         st.subheader("Waiting for a ledger")
         st.caption("Charts, line items, and collections appear after Gemini extracts a photo or spoken statement.")
@@ -707,9 +828,15 @@ with cert_tab:
         with ndebele_col:
             st.markdown("**IsiNdebele**")
             st.markdown(summaries["IsiNdebele"])
+        if health and health.get("score") is not None:
+            st.markdown(
+                f"**Business health score:** {health['score']}/100 · {health.get('band')} · {health.get('status')}"
+            )
+        elif health:
+            st.caption(f"Health score: record {health.get('record_more_days')} more trading day(s) to get a score.")
         st.download_button(
             label="Download PDF certificate",
-            data=build_statement_pdf(result),
+            data=build_statement_pdf(result, health),
             file_name=statement_pdf_filename(result),
             mime="application/pdf",
             icon=":material/download:",

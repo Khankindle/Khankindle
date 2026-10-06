@@ -2,7 +2,7 @@
 
 Status: **Draft v2** (post-hackathon) · Replaces `project.md` (hackathon-day master document, kept on tag `hackathon-submission-2026-09-19` in `fabber04/czi-hackathon`).
 
-This spec covers what PocketLedger does **today** (§1–§6) and the **Business Health Score** (§7). The scoring engine is implemented in `health_score.py` with tests in `tests/test_health_score.py`; showing it in the UI, PDF, and API (§7.7) is still to do. The health score design is based on research into how Moniepoint judges small businesses for working-capital loans (§11).
+This spec covers what PocketLedger does **today** (§1–§6) and the **Business Health Score** (§7). The scoring engine is implemented in `health_score.py` and shown on the Overview tab, the Certificate tab, and the PDF. Still to do from §7.7: passing the score to the Gemini summary, and the Android API. The health score design is based on research into how Moniepoint judges small businesses for working-capital loans (§11).
 
 ---
 
@@ -33,7 +33,7 @@ Streamlit app (app.py) ──photo / voice────────────�
         │◀──────────────── normalized JSON (totals recomputed in Python) ───────────────┘
         ├─▶ data/ store (profile + ledger history)
         ├─▶ projection.py      (7-day linear forecast)
-        ├─▶ health_score.py    (§7 — deterministic, no LLM; UI wiring pending)
+        ├─▶ health_score.py    (§7 — deterministic, no LLM; Overview tab + PDF)
         └─▶ certificate.py     (PDF)
 ```
 
@@ -232,15 +232,15 @@ from health_score import compute
 health = compute(saved_ledgers, profile={"trading_days_per_week": 6}, as_of=date.today())
 ```
 
-- Saved alongside the ledger history and recomputed after every new capture.
-- **Overview tab:** score gauge, band, status badge, component bars, reasons.
-- **Certificate tab / PDF:** new "Business health score" block above the narrative: score, band, status, evidence level, window, component table, excluded entries, affordability guide (if shown), and `score_version`.
+- Recomputed from the saved ledger history on every app run, with `as_of = today` (fast enough: about 60 ms for 1,000 ledgers).
+- **Overview tab (built):** score and band (band in the chosen summary language), status and evidence badges, a progress bar per component, reasons and strength, the affordability guide, and an expander with the credit book and excluded entries. With fewer than 5 trading days it shows how many more days to record.
+- **Certificate tab / PDF (built):** the tab shows a one-line score summary. The PDF has a "Business health score" block between the totals and the transactions: score, band in three languages, status, evidence level, window, component table, outstanding and aged credit, reasons, excluded entries by reason, the affordability guide (or why it is hidden), and the method version. A footer on **every page** repeats the score, `score_version`, and the disclaimer. The score covers all saved pages, and the PDF says so.
 - **Gemini summary:** `business_health_summary`, `summary_shona`, and `summary_ndebele` are given the computed `health` object as context and must quote the score and band exactly. They must never produce a different number.
 - **Android:** `/api/extract` response gains `health` when the server has history for that trader (future; the server is currently stateless).
 
 ### 7.8 Acceptance criteria
 
-Status: criteria 1–4 are covered by `tests/test_health_score.py` (run `pytest` in `pocketledger/`). Criterion 5 waits on the PDF work.
+Status: all five criteria are covered by tests (run `pytest` in `pocketledger/`): 1–4 in `tests/test_health_score.py`, 5 in `tests/test_certificate.py` (checked with both a Unicode font and the built-in Helvetica fallback). `tests/test_app_smoke.py` runs the Streamlit app headlessly against a seeded store.
 
 1. `health_score.compute(ledgers, profile, as_of)` is a pure function with no network or LLM calls. The same input always gives the same output.
 2. Unit tests (`tests/test_health_score.py`) cover: each history-gate status; each pre-qualification rule; anchor-point interpolation; a perfect trader (score ≥ 95); a trader with 80% aged credit (C4 ≤ 30); `Repayment` lines lowering outstanding credit; affordability hidden below score 50.

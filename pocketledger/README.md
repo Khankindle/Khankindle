@@ -18,7 +18,7 @@ Informal traders keep daily sales and *chikwereti* (customer credit) in paper no
 
 ![Cash versus credit certificate](docs/screenshots/certificate.png)
 
-**3. Certificate.** The Streamlit app keeps a trader profile, language toggle, and a simple 7-day projection from saved pages.
+**3. Certificate.** The Streamlit app keeps a trader profile, language toggle, a simple 7-day projection, and a Business health score (0-100) built from all saved pages. The score and its breakdown also appear on the PDF certificate. See `SPEC.md` §7.
 
 ![Streamlit PocketLedger app](docs/screenshots/streamlit.png)
 
@@ -44,7 +44,7 @@ See [`SPEC.md`](SPEC.md) for the product and technical spec, including the plann
 4. Copy `.env.example` to `.env` and add `GEMINI_API_KEY`
 5. `streamlit run app.py`
 
-Run the unit tests (no API key needed): `pip install -r requirements-dev.txt` then `pytest`. They cover the health score engine (`health_score.py`) and totals in `ledger_core.py`.
+Run the tests (no API key needed): `pip install -r requirements.txt -r requirements-dev.txt` then `pytest`. They cover the health score engine (`health_score.py`), the PDF certificate, totals in `ledger_core.py`, and a headless run of the Streamlit app.
 
 Before a demo, or after changing the Gemini prompt, run `python test_gemini.py`. It checks that the API key works, a model answers, and the reply parses as JSON.
 
