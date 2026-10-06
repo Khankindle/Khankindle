@@ -44,6 +44,8 @@ See [`SPEC.md`](SPEC.md) for the product and technical spec, including the plann
 4. Copy `.env.example` to `.env` and add `GEMINI_API_KEY`
 5. `streamlit run app.py`
 
+Run the unit tests (no API key needed): `pip install -r requirements-dev.txt` then `pytest`. They cover the health score engine (`health_score.py`) and totals in `ledger_core.py`.
+
 Before a demo, or after changing the Gemini prompt, run `python test_gemini.py`. It checks that the API key works, a model answers, and the reply parses as JSON.
 
 ## Android

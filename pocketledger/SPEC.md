@@ -2,7 +2,7 @@
 
 Status: **Draft v2** (post-hackathon) · Replaces `project.md` (hackathon-day master document, kept on tag `hackathon-submission-2026-09-19` in `fabber04/czi-hackathon`).
 
-This spec covers what PocketLedger does **today** (§1–§6) and the **Business Health Score** to build next (§7). The health score design is based on research into how Moniepoint judges small businesses for working-capital loans (§11).
+This spec covers what PocketLedger does **today** (§1–§6) and the **Business Health Score** (§7). The scoring engine is implemented in `health_score.py` with tests in `tests/test_health_score.py`; showing it in the UI, PDF, and API (§7.7) is still to do. The health score design is based on research into how Moniepoint judges small businesses for working-capital loans (§11).
 
 ---
 
@@ -33,7 +33,7 @@ Streamlit app (app.py) ──photo / voice────────────�
         │◀──────────────── normalized JSON (totals recomputed in Python) ───────────────┘
         ├─▶ data/ store (profile + ledger history)
         ├─▶ projection.py      (7-day linear forecast)
-        ├─▶ health_score.py    (§7, planned — deterministic, no LLM)
+        ├─▶ health_score.py    (§7 — deterministic, no LLM; UI wiring pending)
         └─▶ certificate.py     (PDF)
 ```
 
@@ -42,6 +42,7 @@ Streamlit app (app.py) ──photo / voice────────────�
 | `ledger_core.py` | Prompt, Gemini call with model fallback on rate limits, JSON parsing, total recomputation, local-language fallback summaries |
 | `app.py` | Streamlit UI: onboarding, Overview / Capture / Transactions / Certificate tabs, persistence |
 | `projection.py` | Least-squares 7-day forecast of revenue, cash, and credit |
+| `health_score.py` | Business Health Score (§7): pre-qualification, history gate, components, reasons, affordability guide |
 | `certificate.py` | PDF certificate (fpdf2) |
 | `extract_server.py` | JSON HTTP API for the Android app; the Gemini key stays on the laptop |
 | `mobile/` | Flutter Android client |
@@ -61,6 +62,7 @@ Streamlit app (app.py) ──photo / voice────────────�
 | `payment_type` | enum | `Cash` · `Credit` · `Expense` · **`Repayment` (new, §7.3)** |
 | `debtor` | string | Customer name when `Credit` or `Repayment`, else `"N/A"` |
 | `confidence` | number 0–1 | **New, optional.** How sure Gemini is that it read the line correctly. Lines below `0.5` are flagged for review and excluded from scoring (§7.2) |
+| `confirmed` | bool | **New, optional.** Set by the app when the trader confirms a flagged line. A confirmed line skips the §7.2 flags (except *No amount* and *Not a sale*) |
 
 ### 4.2 Ledger record (one page or one voice note)
 
@@ -71,7 +73,7 @@ Streamlit app (app.py) ──photo / voice────────────�
 - `Expense` lines (and anything containing "rent") are excluded from sales.
 - `Credit` / *chikwereti* lines count as outstanding credit; all other non-expense lines count as cash.
 - `revenue = cash + credit`.
-- **Change needed for §7:** `Repayment` lines must count as **cash received** and **reduce** that debtor's outstanding balance. They must not be counted as new sales revenue.
+- `Repayment` lines are **not** counted in page sales totals. `health_score.py` counts them as **cash received** and uses them to **reduce** that debtor's outstanding balance, oldest credit first (FIFO). The Gemini prompt asks for `Repayment` when a customer pays back chikwereti.
 
 ## 5. Projection (current)
 
@@ -109,7 +111,9 @@ Run over all saved ledgers in the scoring window (default **last 56 days**). Exc
 | Zero / missing amount | `amount_usd <= 0` | "No amount" |
 | Non-business | Personal transfers, loans received, owner top-ups | "Not a sale" |
 
-When the trader confirms a flagged line on the Transactions tab, it is counted again.
+When the trader confirms a flagged line on the Transactions tab (`confirmed: true`), it is counted again.
+
+Implementation notes: rules run in date order over **all** saved history, so the outlier medians only use earlier data. For *Repeated entry* the first occurrence is kept and the rest are excluded. Pages with no readable date and no `processed_at` are excluded with the reason "No date on this page".
 
 ### 7.3 Inputs derived per trading day
 
@@ -130,6 +134,8 @@ For each calendar date *d* in the window (several ledgers on the same date are m
 | **Established** | ≥ 14 trading days spanning ≥ 42 days | Full score and affordability guide |
 
 The 6-week threshold follows the minimum account-activity period widely reported for Moniepoint business loans (§11).
+
+*Span* = days from the first recorded date in the window to `as_of`, inclusive. `as_of` defaults to the latest ledger date so the function stays pure. **The app must pass today's date** so that recent days without records count against C1.
 
 ### 7.5 Step 3 — Component scores
 
@@ -174,7 +180,7 @@ Each component is normalised to 0–100 using piecewise-linear interpolation bet
 
 > Band names in ChiShona and IsiNdebele must be reviewed by native speakers before release.
 
-**Reasons and next steps.** Rank components by `weight × (100 − C_i)`, which is how many points each one costs. Show the top 2 as **"What is lowering your score"** with one action each, and the best component as **"Your strength"**. Example actions:
+**Reasons and next steps.** Rank components by `weight × (100 − C_i)`, which is how many points each one costs. Show the top 2 **that score below 75** as **"What is lowering your score"** with one action each, and the best component as **"Your strength"**. The 75 cut-off stops neutral defaults (no credit given → collection 50; under 3 weeks of history → growth 50) from producing advice that doesn't apply. For C4, the action targets the weakest credit sub-score; ties go to ageing, then concentration, because naming customers is the most useful advice. Example actions:
 
 | Weak component | Action text (EN) |
 | --- | --- |
@@ -183,6 +189,9 @@ Each component is normalised to 0–100 using piecewise-linear interpolation bet
 | C4 ageing | "N customers owe you for more than 30 days: {names}." |
 | C4 concentration | "{name} owes {pct}% of your credit. Spread your risk." |
 | C5 | "Expenses are close to your cash income. Check stock costs and rent." |
+| C6 | "Sales have dropped over recent weeks…" (below 50) / "Sales have been flat…" (50–74) |
+
+Action text is English only for now. ChiShona and IsiNdebele versions will be added after native-speaker review.
 
 **Affordability guide** (Established status only; Gemini never writes these numbers). This follows Moniepoint's rule of sizing credit so the business is not over-leveraged, and its practice of collecting repayments from daily inflows:
 
@@ -215,6 +224,14 @@ All thresholds in §7.2–§7.6 live in one `HEALTH_CONFIG` dict in `health_scor
 }
 ```
 
+The implementation also returns `band_local` (band in all three languages), `credit_sub_scores`, `credit_book` (outstanding, aged, per debtor), `excluded` (each excluded line with its reason), `actions`, `metrics` (raw ratios), `record_more_days`, and `disclaimer`.
+
+```python
+from datetime import date
+from health_score import compute
+health = compute(saved_ledgers, profile={"trading_days_per_week": 6}, as_of=date.today())
+```
+
 - Saved alongside the ledger history and recomputed after every new capture.
 - **Overview tab:** score gauge, band, status badge, component bars, reasons.
 - **Certificate tab / PDF:** new "Business health score" block above the narrative: score, band, status, evidence level, window, component table, excluded entries, affordability guide (if shown), and `score_version`.
@@ -223,7 +240,9 @@ All thresholds in §7.2–§7.6 live in one `HEALTH_CONFIG` dict in `health_scor
 
 ### 7.8 Acceptance criteria
 
-1. `health_score.compute(ledgers, profile)` is a pure function with no network or LLM calls. The same input always gives the same output.
+Status: criteria 1–4 are covered by `tests/test_health_score.py` (run `pytest` in `pocketledger/`). Criterion 5 waits on the PDF work.
+
+1. `health_score.compute(ledgers, profile, as_of)` is a pure function with no network or LLM calls. The same input always gives the same output.
 2. Unit tests (`tests/test_health_score.py`) cover: each history-gate status; each pre-qualification rule; anchor-point interpolation; a perfect trader (score ≥ 95); a trader with 80% aged credit (C4 ≤ 30); `Repayment` lines lowering outstanding credit; affordability hidden below score 50.
 3. Adding a single outlier sale never raises the score by more than 2 points.
 4. The five `samples/ledgers/ground_truth.json` traders, replayed as a synthetic 6-week history, produce scores that are stable across runs.

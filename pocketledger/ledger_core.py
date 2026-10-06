@@ -46,7 +46,7 @@ Extract the financial data and return a strictly structured JSON object with the
   "business_name": "Name of business or 'Unspecified'",
   "date": "Date of entry or 'Unspecified'",
 {transcript_key}  "transactions": [
-    {{"item": "item name", "quantity": "qty", "amount_usd": 0.00, "payment_type": "Cash or Credit", "debtor": "person name if credit or N/A"}}
+    {{"item": "item name", "quantity": "qty", "amount_usd": 0.00, "payment_type": "Cash, Credit, Expense, or Repayment", "debtor": "person name if credit or N/A"}}
   ],
   "total_revenue_usd": 0.00,
   "total_cash_usd": 0.00,
@@ -59,6 +59,7 @@ Rules:
 - Treat Credit / chikwereti / named debtors as outstanding credit, not cash.
 - Amounts are in USD.
 - Paid rent and similar operating costs are expenses, not sales. Put them in transactions with payment_type "Expense" so they are excluded from cash and credit sales totals.
+- When a customer pays back earlier chikwereti, use payment_type "Repayment" with the customer's name as debtor. Repayments are not new sales.
 - Interpret items in the context of the selected business category.
 - Write summary_shona and summary_ndebele in spoken market language, not formal or literary style.
 {invent_rule}
@@ -94,6 +95,10 @@ def recompute_totals(transactions: list[dict[str, Any]]) -> tuple[float, float, 
         amount = to_float(row.get("amount_usd"))
         payment = str(row.get("payment_type") or "").lower()
         if "expense" in payment or "rent" in payment:
+            continue
+        if "repay" in payment:
+            # Money a debtor pays back is cash received, not a new sale (SPEC.md §4.3).
+            # health_score.py uses it to reduce that debtor's outstanding balance.
             continue
         if "credit" in payment or "chikwereti" in payment:
             credit += amount
