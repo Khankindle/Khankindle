@@ -1,0 +1,11 @@
+item,usd_per_single_ear,assumption
+PP resin pigment and scrap,0.02,unquoted
+TPE resin and scrap,0.02,unquoted
+Body molding conversion,0.10,unquoted at 100000 units
+Cradle molding conversion,0.10,unquoted at 100000 units
+Assembly and visual inspection,0.10,unquoted
+Batch acoustic QC allocation,0.08,unquoted
+Paper packaging,0.05,unquoted
+Rejects and overhead,0.08,unquoted
+Tooling amortization,0.15,15000 USD tooling over 100000 units
+TOTAL,0.80,not retail or custom delivered cost

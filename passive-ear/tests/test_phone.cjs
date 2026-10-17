@@ -1,0 +1,20 @@
+// Headless logic tests for the actual browser script. No browser/DOM rendering claim.
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path');
+const html=fs.readFileSync(path.join(__dirname,'../phone/index.html'),'utf8');
+const nodes={};
+for(const id of ['canvas','photo','status','undo','reset','ref','side','confirm','result','download'])nodes['#'+id]={value:'',checked:false,disabled:true,textContent:''};
+nodes['#ref'].value='20';nodes['#side'].value='right';nodes['#canvas'].getContext=()=>({});
+const context=vm.createContext({document:{querySelector:s=>nodes[s]},console,Math,Number,JSON,URL,Blob,setTimeout});
+vm.runInContext(html.match(/<script>([\s\S]*?)<\/script>/)[1],context);
+const run=s=>vm.runInContext(s,context);
+run('image={};points=[[0,0],[200,0],[0,0],[0,280],[0,0],[220,0]];update()');
+assert.equal(nodes['#download'].disabled,true,'confirmation required');
+nodes['#confirm'].checked=true;run('update()');assert.equal(nodes['#download'].disabled,false);
+assert.equal(run('fit.concha_height_mm'),28);assert.equal(run('fit.concha_width_mm'),22);assert.equal(run('fit.depth_status'),'unknown; no canal fit inferred');
+nodes['#side'].value='left';run('update()');assert.equal(run('fit.side'),'left');
+run('points[3]=[0,500];update()');assert.equal(nodes['#download'].disabled,true,'out-of-envelope rejected');
+run('points[3]=[0,280];points[1]=[10,0];update()');assert.equal(nodes['#download'].disabled,true,'tiny reference rejected');
+run('points[1]=[200,0]');nodes['#ref'].value='';run('update()');assert.equal(nodes['#download'].disabled,true,'empty scale rejected');
+nodes['#ref'].value='20';run('points.pop();update()');assert.equal(nodes['#download'].disabled,true,'incomplete landmarks rejected');
+assert(!/https?:\/\/|fetch\(|XMLHttpRequest|localStorage/.test(html.match(/<script>([\s\S]*?)<\/script>/)[1]),'no remote upload or persisted photo in script');
+console.log('PASS: valid calibrated dimensions, laterality, repeat-confirmation gate, range rejection, tiny/empty scale, incomplete landmarks, no remote upload in script.');
