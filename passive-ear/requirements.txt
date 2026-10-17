@@ -1,0 +1,5 @@
+numpy==2.4.6
+trimesh==5.1.1
+manifold3d==3.5.4
+matplotlib==3.11.2
+reportlab==5.0.1

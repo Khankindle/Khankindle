@@ -1,0 +1,29 @@
+{
+  "fit": {
+    "concha_height_mm": 28,
+    "concha_width_mm": 22,
+    "side": "right",
+    "method": "illustrative dimensions, not a person's scan",
+    "depth_status": "unknown; no canal fit inferred"
+  },
+  "status": "BENCH ONLY; no measured acoustic or clinical performance",
+  "units": "mm",
+  "shell_bounds_mm": [
+    18.0,
+    24.0,
+    12.0
+  ],
+  "assembly_bounds_mm": [
+    20.399999618530273,
+    30.59999942779541,
+    12.0
+  ],
+  "shell_volume_mm3": 2840.695527287851,
+  "cradle_volume_mm3": 342.4194646346826,
+  "estimated_mass_g": 2.933287385657217,
+  "mouth_area_mm2": 97.45220411435538,
+  "outlet_area_mm2": 23.687608608067038,
+  "shell_watertight": true,
+  "cradle_watertight": true,
+  "minimum_wall_certified": false
+}
