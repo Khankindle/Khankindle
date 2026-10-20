@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CloudyAI — Computer vision on the cameras you already own</title>
+<meta name="description" content="CloudyAI puts working computer vision on existing plant CCTV: PPE compliance, fill levels, assembly checks, safety zones. On-site inference, no new hardware, live in weeks. Harare, Zimbabwe.">
+<meta name="theme-color" content="#f6f1e7">
+<meta property="og:title" content="CloudyAI — Computer vision on the cameras you already own">
+<meta property="og:description" content="PPE monitoring, fill-level inspection, assembly verification and safety zones on the CCTV your plant already owns. Built in Harare.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/img/hero-floor.webp">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2317140f'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23f6f1e7' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23a4421d'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Karla:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- ============================================================
+     Header
+     ============================================================ -->
+<header class="site-header" id="siteHeader">
+  <div class="wrap nav">
+    <a class="brand" href="index.html" aria-label="CloudyAI home">
+      <span class="brand__mark" aria-hidden="true"></span>
+      Cloudy<span class="brand__dot">AI</span>
+    </a>
+
+    <nav class="nav__links" aria-label="Primary">
+      <a class="nav__link" href="#vision">Vision</a>
+      <a class="nav__link" href="#services">Services</a>
+      <a class="nav__link" href="#research">Research</a>
+      <a class="nav__link" href="#studio">Studio</a>
+      <a class="nav__link" href="leak-audit.html">Spend audit</a>
+      <a class="nav__link" href="careers.html">Careers</a>
+    </nav>
+
+    <div class="nav__right">
+      <a class="nav__call" href="research.html">Research library</a>
+      <a class="btn btn--sm" href="contact.html">
+        Book a call
+        <svg class="arrow" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <div class="mobile-menu__top">
+    <a class="brand" href="index.html"><span class="brand__mark" aria-hidden="true"></span>Cloudy<span class="brand__dot">AI</span></a>
+    <button type="button" class="nav-toggle" id="menuClose" aria-label="Close menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <nav class="mobile-menu__links" aria-label="Mobile">
+    <a class="mobile-menu__link" href="#vision"><span>01</span> Computer vision</a>
+    <a class="mobile-menu__link" href="#services"><span>02</span> Services</a>
+    <a class="mobile-menu__link" href="#research"><span>03</span> Research</a>
+    <a class="mobile-menu__link" href="#studio"><span>04</span> Studio</a>
+    <a class="mobile-menu__link" href="leak-audit.html"><span>05</span> Spend audit</a>
+    <a class="mobile-menu__link" href="careers.html"><span>06</span> Careers</a>
+    <a class="mobile-menu__link" href="contact.html"><span>07</span> Contact</a>
+  </nav>
+  <div class="mobile-menu__foot">
+    <a class="btn btn--block" href="contact.html">Send us a camera still</a>
+    <p>sales@cloudyai.co.zw · Harare, Zimbabwe</p>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- ============================================================
+       Hero
+       ============================================================ -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero__grid">
+        <div class="hero__copy reveal">
+          <p class="hero__eyebrow"><span class="dot" aria-hidden="true"></span> Harare, Zimbabwe · Computer vision &amp; AI engineering</p>
+          <h1 class="hero__title">Your cameras already see it. <em>We teach them to speak.</em></h1>
+          <p class="hero__lead">
+            CloudyAI puts working computer vision on the CCTV your plant already owns — PPE compliance,
+            fill levels, assembly checks and restricted zones. No hardware to install, no video leaving the site.
+          </p>
+          <div class="hero__cta">
+            <a class="btn" href="contact.html">
+              Send us a camera still
+              <svg class="arrow" width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="btn btn--ghost" href="#vision">See what we detect</a>
+          </div>
+          <p class="hero__note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            A free, honest read on what your footage can support — usually within two working days.
+          </p>
+        </div>
+
+        <figure class="hero__media reveal">
+          <div class="hero__frame">
+            <img src="assets/img/hero-floor.webp"
+                 srcset="assets/img/hero-floor-sm.webp 760w, assets/img/hero-floor.webp 1376w"
+                 sizes="(max-width: 900px) 92vw, 560px" width="1376" height="768"
+                 alt="Two workers in hi-vis vests and hard hats walking the line at a bottling plant, bottles moving on a stainless conveyor." fetchpriority="high">
+            <figcaption class="hero__caption">
+              <span>Line 3 · bottling hall</span>
+              <span class="hero__live"><span class="pulse" aria-hidden="true"></span> camera 04</span>
+            </figcaption>
+          </div>
+          <div class="stamp" aria-hidden="true">
+            <div>
+              <strong>In service</strong>
+              existing cameras<br>no new install
+            </div>
+          </div>
+        </figure>
+      </div>
+
+      <dl class="facts reveal">
+        <div class="facts__item">
+          <dt class="facts__k">Your cameras</dt>
+          <dd class="facts__v">RTSP or ONVIF. Nothing new to mount.</dd>
+        </div>
+        <div class="facts__item">
+          <dt class="facts__k">On-site inference</dt>
+          <dd class="facts__v">Works through load-shedding. Video stays inside.</dd>
+        </div>
+        <div class="facts__item">
+          <dt class="facts__k">4–6 weeks</dt>
+          <dd class="facts__v">Single-line pilot, from audit to first alert.</dd>
+        </div>
+        <div class="facts__item">
+          <dt class="facts__k">Built here</dt>
+          <dd class="facts__v">Harare-based, deployed across the region.</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       Sectors
+       ============================================================ -->
+  <div class="sectors">
+    <div class="wrap sectors__inner">
+      <p class="sectors__label">Where this work runs</p>
+      <ul class="sectors__list">
+        <li>Mining</li>
+        <li>Food &amp; beverage</li>
+        <li>Packaging</li>
+        <li>Logistics</li>
+        <li>Automotive</li>
+        <li>Pharmaceutical</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       01 — Computer vision
+       ============================================================ -->
+  <section class="section" id="vision">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-head__top">
+          <p class="eyebrow">01 / Computer vision</p>
+          <p class="sec-head__meta">Built on Roboflow · runs on your streams</p>
+        </div>
+        <h2 class="sec-head__title">Six checks a camera can make <em>before lunch.</em></h2>
+        <p class="sec-head__lead">
+          Most plants run thirty to a hundred cameras that only get watched after something has already gone wrong.
+          We put a model behind the streams you already pay for and turn them into alerts someone can act on.
+        </p>
+      </div>
+
+      <!-- Interactive demo -->
+      <div class="demo" id="demo" data-mode="ppe">
+        <div class="demo__stage">
+          <div class="demo__frame">
+            <img class="demo__img is-active" id="demoImg" src="assets/img/cam-ppe.webp" width="1408" height="768"
+                 alt="Ceiling camera view of a packing hall with workers in hi-vis vests, one without a hard hat.">
+            <div class="demo__scan" aria-hidden="true"></div>
+            <div class="demo__overlay" id="demoOverlay" aria-hidden="true"></div>
+            <span class="demo__badge"><span class="rec" aria-hidden="true"></span> live analysis</span>
+            <span class="demo__cam" id="demoCam">CAM-04 · packing hall</span>
+          </div>
+        </div>
+
+        <div class="demo__panel">
+          <div class="demo__tabs" role="tablist" aria-label="Choose a detection example">
+            <button type="button" class="demo__tab" role="tab" id="tab-ppe" aria-controls="demoPanel" aria-selected="true" data-mode="ppe">PPE</button>
+            <button type="button" class="demo__tab" role="tab" id="tab-fill" aria-controls="demoPanel" aria-selected="false" data-mode="fill">Fill level</button>
+            <button type="button" class="demo__tab" role="tab" id="tab-assembly" aria-controls="demoPanel" aria-selected="false" data-mode="assembly">Assembly</button>
+          </div>
+          <div class="demo__body" id="demoPanel" role="tabpanel" aria-labelledby="tab-ppe" tabindex="0">
+            <h3 class="demo__title" id="demoTitle">PPE compliance</h3>
+            <p class="demo__desc" id="demoDesc">
+              Hard hat and hi-vis checks on a fixed ceiling camera. One alert per person, after a
+              persistence window — not forty alerts per frame.
+            </p>
+            <ul class="feed" id="demoFeed"></ul>
+            <dl class="demo__stats" id="demoStats"></dl>
+          </div>
+          <div class="demo__foot">
+            <p>Illustrative view · same camera, three models</p>
+            <button type="button" class="demo__toggle" id="demoToggle" aria-pressed="true">
+              <span class="swatch" aria-hidden="true"></span> Detections on
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <noscript>
+        <p class="form-fine" style="margin-top: 4px">
+          The detector overlay needs JavaScript. The photographs, the written scope and the downloads do not.
+        </p>
+      </noscript>
+
+      <!-- Products -->
+      <div class="product-grid">
+        <article class="product">
+          <div class="product__media">
+            <img src="assets/img/cam-ppe.webp"
+                 srcset="assets/img/cam-ppe-sm.webp 760w, assets/img/cam-ppe.webp 1408w"
+                 sizes="(max-width: 720px) 92vw, (max-width: 1180px) 46vw, 372px" width="1408" height="768" loading="lazy" decoding="async"
+                 alt="Workers on a factory walkway captured from a ceiling-mounted safety camera.">
+            <span class="product__num">01</span>
+          </div>
+          <div class="product__body">
+            <h3 class="product__title">PPE &amp; safety compliance</h3>
+            <p class="product__text">Hard hats, vests, gloves and eyewear — checked continuously on the cameras you already own, with evidence attached to every alert.</p>
+            <ul class="product__list">
+              <li>Helmet, vest, glove and eyewear checks</li>
+              <li>Persistence and tracking to stop alert floods</li>
+              <li>WhatsApp, email or dashboard delivery</li>
+            </ul>
+            <div class="product__foot">
+              <span class="product__fit">existing cameras</span>
+              <a class="link-arrow" href="contact.html">Scope a pilot</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="product">
+          <div class="product__media">
+            <img src="assets/img/cam-fill.webp"
+                 srcset="assets/img/cam-fill-sm.webp 760w, assets/img/cam-fill.webp 1408w"
+                 sizes="(max-width: 720px) 92vw, (max-width: 1180px) 46vw, 372px" width="1408" height="768" loading="lazy" decoding="async"
+                 alt="Backlit bottles on a filling line, with fill levels visible through the glass.">
+            <span class="product__num">02</span>
+          </div>
+          <div class="product__body">
+            <h3 class="product__title">Fill level &amp; cap checks</h3>
+            <p class="product__text">Every bottle, can or vial measured at line speed. Rejects go to the PLC; the reason goes to the filler-head log.</p>
+            <ul class="product__list">
+              <li>Backlit fill-height measurement</li>
+              <li>Cap, seal and label presence</li>
+              <li>Rejector and filler-head handshake</li>
+            </ul>
+            <div class="product__foot">
+              <span class="product__fit">camera + backlight</span>
+              <a class="link-arrow" href="contact.html">Scope a pilot</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="product">
+          <div class="product__media">
+            <img src="assets/img/card-assembly.webp"
+                 srcset="assets/img/card-assembly-sm.webp 760w, assets/img/card-assembly.webp 1408w"
+                 sizes="(max-width: 720px) 92vw, (max-width: 1180px) 46vw, 372px" width="1408" height="768" loading="lazy" decoding="async"
+                 alt="Hands in blue gloves assembling a circuit board with a powered driver at a workbench.">
+            <span class="product__num">03</span>
+          </div>
+          <div class="product__body">
+            <h3 class="product__title">Assembly verification</h3>
+            <p class="product__text">Confirm every component, connector and fastener is present and seated before the unit leaves the station.</p>
+            <ul class="product__list">
+              <li>Component and kit completeness</li>
+              <li>Connector seating and orientation</li>
+              <li>Step order and station hold</li>
+            </ul>
+            <div class="product__foot">
+              <span class="product__fit">station camera</span>
+              <a class="link-arrow" href="contact.html">Scope a pilot</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="product">
+          <div class="product__media">
+            <img src="assets/img/card-defect.webp"
+                 srcset="assets/img/card-defect-sm.webp 760w, assets/img/card-defect.webp 1408w"
+                 sizes="(max-width: 720px) 92vw, (max-width: 1180px) 46vw, 372px" width="1408" height="768" loading="lazy" decoding="async"
+                 alt="Machined aluminium brackets on a workshop bench under inspection lighting.">
+            <span class="product__num">04</span>
+          </div>
+          <div class="product__body">
+            <h3 class="product__title">Surface &amp; foreign-object checks</h3>
+            <p class="product__text">Scratches, dents, cracks, weld porosity and stray hardware on machined parts, mouldings and packaging.</p>
+            <ul class="product__list">
+              <li>Defect detection and classification</li>
+              <li>Close-out and cavity checks</li>
+              <li>Dimensional checks against spec</li>
+            </ul>
+            <div class="product__foot">
+              <span class="product__fit">inspection cell</span>
+              <a class="link-arrow" href="contact.html">Scope a pilot</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="product">
+          <div class="product__media">
+            <img src="assets/img/card-zone.webp"
+                 srcset="assets/img/card-zone-sm.webp 760w, assets/img/card-zone.webp 1376w"
+                 sizes="(max-width: 720px) 92vw, (max-width: 1180px) 46vw, 372px" width="1376" height="768" loading="lazy" decoding="async"
+                 alt="Workers standing beside a yellow hazard zone around a press in a fabrication workshop.">
+            <span class="product__num">05</span>
+          </div>
+          <div class="product__body">
+            <h3 class="product__title">Zones &amp; machine guarding</h3>
+            <p class="product__text">Restricted areas, guard-in-place checks and pedestrian-versus-forklift separation — an alarm before the near miss.</p>
+            <ul class="product__list">
+              <li>Person-in-zone and dwell rules</li>
+              <li>Guard and interlock visual checks</li>
+              <li>Forklift and pedestrian proximity</li>
+            </ul>
+            <div class="product__foot">
+              <span class="product__fit">existing cameras</span>
+              <a class="link-arrow" href="contact.html">Scope a pilot</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="product">
+          <div class="product__media">
+            <img src="assets/img/card-forklift.webp"
+                 srcset="assets/img/card-forklift-sm.webp 760w, assets/img/card-forklift.webp 1408w"
+                 sizes="(max-width: 720px) 92vw, (max-width: 1180px) 46vw, 372px" width="1408" height="768" loading="lazy" decoding="async"
+                 alt="A forklift moving pallets down a warehouse aisle with a worker walking ahead.">
+            <span class="product__num">06</span>
+          </div>
+          <div class="product__body">
+            <h3 class="product__title">Counting &amp; line visibility</h3>
+            <p class="product__text">Units in and out, micro-stops, queue length and changeover time — derived from one camera over the line.</p>
+            <ul class="product__list">
+              <li>Counts reconciled to the production report</li>
+              <li>Stops under five minutes, logged</li>
+              <li>Changeover duration, evidenced</li>
+            </ul>
+            <div class="product__foot">
+              <span class="product__fit">line camera</span>
+              <a class="link-arrow" href="contact.html">Scope a pilot</a>
+            </div>
+          </div>
+        </article>
+
+        <div class="product product--custom">
+          <div>
+            <h3>Something else a person can see from a fixed camera?</h3>
+            <p>Lot codes and expiry dates, pallet damage, spill detection, truck bay occupancy, drum labels. If the check is visible, it is usually trainable.</p>
+          </div>
+          <a class="btn btn--ghost" href="contact.html">Describe the check</a>
+        </div>
+      </div>
+
+      <!-- Process -->
+      <div style="margin-top: clamp(48px, 6vw, 76px)">
+        <div class="sec-head" style="margin-bottom: 24px">
+          <div class="sec-head__top">
+            <p class="eyebrow">How a deployment runs</p>
+            <p class="sec-head__meta">Four phases · no surprises</p>
+          </div>
+        </div>
+        <div class="process">
+          <div class="process__step">
+            <span class="process__n">01</span>
+            <h3 class="process__t">Camera audit</h3>
+            <p class="process__d">We pull stills from every camera at three times of day and score them for the specific check. You get a go/no-go table, not a sales deck.</p>
+            <span class="process__time">3–5 days</span>
+          </div>
+          <div class="process__step">
+            <span class="process__n">02</span>
+            <h3 class="process__t">Your own footage</h3>
+            <p class="process__d">1,500–3,000 labelled frames from your floor, across shifts — deliberately including the ugly cases: glare, night, crowds, occlusion.</p>
+            <span class="process__time">2 weeks</span>
+          </div>
+          <div class="process__step">
+            <span class="process__n">03</span>
+            <h3 class="process__t">Model &amp; workflow</h3>
+            <p class="process__d">Trained and evaluated on your footage, then wired into the alert path or control system you already use. Every model ships with its confusion matrix.</p>
+            <span class="process__time">1–2 weeks</span>
+          </div>
+          <div class="process__step">
+            <span class="process__n">04</span>
+            <h3 class="process__t">Shadow running</h3>
+            <p class="process__d">It runs silently alongside your operators. We tune thresholds against their judgement before anything is allowed to send an alert.</p>
+            <span class="process__time">2 weeks</span>
+          </div>
+        </div>
+
+        <div class="stack">
+          <span class="stack__label">The stack</span>
+          <span class="stack__item">Roboflow</span>
+          <span class="stack__item">RF-DETR</span>
+          <span class="stack__item">YOLO</span>
+          <span class="stack__item">ByteTrack</span>
+          <span class="stack__item">ONNX</span>
+          <span class="stack__item">TensorRT</span>
+          <span class="stack__item">RTSP / ONVIF</span>
+          <span class="stack__item">MQTT / OPC-UA</span>
+          <span class="stack__item">PLC handshake</span>
+          <span class="stack__item">WhatsApp Business</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       Honest limits
+       ============================================================ -->
+  <section class="section section--tight section--paper2">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-head__top">
+          <p class="eyebrow">What we won't promise</p>
+          <p class="sec-head__meta">Read this before the quote</p>
+        </div>
+        <h2 class="sec-head__title">The limits are technical,<br>so we say them <em>early.</em></h2>
+      </div>
+
+      <div class="limits">
+        <div class="limit">
+          <h3>A helmet at forty metres</h3>
+          <p>A 1080p camera covering a 30 m aisle gives about 18 pixels across a hard hat. No model fixes that. Bring us a still and we will do the arithmetic with you.</p>
+        </div>
+        <div class="limit">
+          <h3>Face recognition or identity matching</h3>
+          <p>We do not build it. Alerts point to a zone, a time and a clip that a supervisor reviews — never to a named person, never to an automatic penalty.</p>
+        </div>
+        <div class="limit">
+          <h3>Seeing behind a guard or into a closed machine</h3>
+          <p>Cameras see what is visible from where they hang. PLC and sensor data covers the rest; the useful system is usually both, wired together.</p>
+        </div>
+        <div class="limit">
+          <h3>Fixing a culture</h3>
+          <p>A camera everyone ignores changes nothing. If the shift team is not in the design, the dashboard will be muted inside a fortnight and the money will be gone.</p>
+        </div>
+      </div>
+
+      <blockquote class="field-note" style="margin-top: 32px">
+        <p>“Five of your forty cameras may be the right five. We would rather run a pilot on those than sell you forty licences.”</p>
+        <cite>CloudyAI site audit · August 2026</cite>
+      </blockquote>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       02 — Services
+       ============================================================ -->
+  <section class="section" id="services">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-head__top">
+          <p class="eyebrow">02 / Advisory</p>
+          <p class="sec-head__meta">Security · implementation · cost</p>
+        </div>
+        <h2 class="sec-head__title">The unglamorous work that <em>keeps it standing.</em></h2>
+        <p class="sec-head__lead">
+          A model in a demo is easy. A model with an owner, an audit trail and a monthly cost review is the part that lasts.
+        </p>
+      </div>
+
+      <div class="services">
+        <article class="service">
+          <div class="service__n">01</div>
+          <div>
+            <h3 class="service__title">Incident response</h3>
+            <p class="service__lede">When something the model did is already public.</p>
+          </div>
+          <div class="service__body">
+            <p>We contain, preserve evidence and get you to a defensible timeline — prompt logs, model versions, tool calls, retrieval snapshots. The familiar playbook stops at “reproduce the bug”; we work from the record instead.</p>
+            <ul class="service__list">
+              <li>72-hour plan</li>
+              <li>Evidence preservation</li>
+              <li>Regulator-facing reporting</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="service">
+          <div class="service__n">02</div>
+          <div>
+            <h3 class="service__title">Cybersecurity advisory</h3>
+            <p class="service__lede">The attack surface moved; the framework didn't.</p>
+          </div>
+          <div class="service__body">
+            <p>Prompt injection, over-permissioned tools, keys in client bundles, agents with write access and no kill switch. We assess the system you actually built, then fix in priority order — with an owner and a date against each finding.</p>
+            <ul class="service__list">
+              <li>Threat modelling</li>
+              <li>Key &amp; secret hygiene</li>
+              <li>Agent tool permissions</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="service">
+          <div class="service__n">03</div>
+          <div>
+            <h3 class="service__title">AI implementation</h3>
+            <p class="service__lede">Cheap to run, possible to hand over.</p>
+          </div>
+          <div class="service__body">
+            <p>Model choice, caching, routing, logging and the monthly review someone actually attends. We design for the team that inherits the system, not for the launch announcement.</p>
+            <ul class="service__list">
+              <li>Model selection</li>
+              <li>Cost governance</li>
+              <li>Observability</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+
+      <!-- Calculator -->
+      <div style="margin-top: clamp(40px, 5vw, 64px)">
+        <div class="sec-head" style="margin-bottom: 22px">
+          <div class="sec-head__top">
+            <p class="eyebrow">Quick arithmetic</p>
+            <p class="sec-head__meta">Runs in your browser · nothing sent</p>
+          </div>
+          <h2 class="sec-head__title" style="font-size: clamp(1.7rem, 3vw, 2.3rem)">Is the AI investment <em>paying for itself?</em></h2>
+        </div>
+
+        <div class="calculator">
+          <form class="calculator__form" id="calcForm" novalidate>
+            <div class="calc-field">
+              <label for="calcDeploy">Deployment cost, one-off (USD)</label>
+              <div class="calc-input-wrap">
+                <span class="cur" aria-hidden="true">$</span>
+                <input class="calc-input" id="calcDeploy" type="number" inputmode="numeric" min="0" step="100" placeholder="25 000" autocomplete="off">
+              </div>
+            </div>
+            <div class="calc-field">
+              <label for="calcRun">API &amp; subscription cost, per year (USD)</label>
+              <div class="calc-input-wrap">
+                <span class="cur" aria-hidden="true">$</span>
+                <input class="calc-input" id="calcRun" type="number" inputmode="numeric" min="0" step="100" placeholder="85 000" autocomplete="off">
+              </div>
+            </div>
+            <div class="calc-field">
+              <label for="calcReturn">Return attributed to the system, per year (USD)</label>
+              <div class="calc-input-wrap">
+                <span class="cur" aria-hidden="true">$</span>
+                <input class="calc-input" id="calcReturn" type="number" inputmode="numeric" min="0" step="100" placeholder="500 000" autocomplete="off">
+              </div>
+              <p class="calc-hint">Be pessimistic. Include the hours your team spends maintaining it.</p>
+            </div>
+            <button class="btn btn--sm" type="button" id="calcReset" style="--btn-bg: transparent; --btn-fg: var(--muted); border-color: var(--line-2)">Clear</button>
+          </form>
+
+          <div class="calculator__out">
+            <div class="verdict">
+              <p class="verdict__eyebrow">Net position, year one</p>
+              <p class="verdict__value" id="calcValue">—</p>
+              <p class="verdict__text" id="calcText">Enter three numbers and we will do the subtraction. A negative first year is normal; a system that never repays is not.</p>
+              <div class="verdict__bar" aria-hidden="true"><span id="calcBar"></span></div>
+              <div class="verdict__scale"><span>Costs more</span><span>Pays back</span></div>
+              <p class="verdict__meta" id="calcMeta">No data leaves this page.</p>
+            </div>
+            <p style="margin-top: 18px; font-size: 13.5px; color: var(--muted)">
+              Want a real read on inference spend? <a class="inline-link" href="leak-audit.html">Run the usage audit</a> on a CSV export.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       03 — Research library
+       ============================================================ -->
+  <section class="section section--paper3" id="research">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-head__top">
+          <p class="eyebrow">03 / Research library</p>
+          <p class="sec-head__meta">Six papers · free PDF · no email gate</p>
+        </div>
+        <h2 class="sec-head__title">Field notes, not <em>thought leadership.</em></h2>
+        <p class="sec-head__lead">
+          Written from the work: pixel maths for safety cameras, fill-line physics, a six-week line pilot,
+          incident response for systems that call a model, and a governance framework we would defend in a meeting.
+        </p>
+      </div>
+
+      <div class="research-tools">
+        <div class="filters" role="group" aria-label="Filter papers by topic">
+          <button type="button" class="filter" aria-pressed="true" data-filter="all">All papers</button>
+          <button type="button" class="filter" aria-pressed="false" data-filter="vision">Computer vision</button>
+          <button type="button" class="filter" aria-pressed="false" data-filter="cost">Cost &amp; governance</button>
+          <button type="button" class="filter" aria-pressed="false" data-filter="security">Security</button>
+          <button type="button" class="filter" aria-pressed="false" data-filter="governance">Ethics</button>
+        </div>
+        <p class="research-count" id="paperCount">6 of 6 papers</p>
+      </div>
+
+      <div class="papers" id="papers">
+        <article class="paper" data-cat="cost">
+          <a class="paper__cover" href="assets/research/quiet-leak-ai-spend.pdf" download>
+            <img src="assets/research/covers/quiet-leak-ai-spend.webp" width="707" height="1000" loading="lazy" decoding="async" alt="Cover of the paper The Quiet Leak">
+            <span class="paper__format">PDF</span>
+          </a>
+          <div class="paper__body">
+            <p class="paper__cat">Cost &amp; governance</p>
+            <h3 class="paper__title">The Quiet Leak</h3>
+            <p class="paper__desc">Why AI budgets fail slowly rather than loudly, the four leak classes we look for first, and the monthly cadence that keeps the number honest.</p>
+            <div class="paper__meta">
+              <span class="paper__specs">CA-R-01<br>6 pages · 9 min</span>
+              <a class="dl" href="assets/research/quiet-leak-ai-spend.pdf" download>
+                Download
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M3 13h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <article class="paper" data-cat="vision">
+          <a class="paper__cover" href="assets/research/ppe-existing-cameras.pdf" download>
+            <img src="assets/research/covers/ppe-existing-cameras.webp" width="707" height="1000" loading="lazy" decoding="async" alt="Cover of the paper The Cameras Are Already There">
+            <span class="paper__format">PDF</span>
+          </a>
+          <div class="paper__body">
+            <p class="paper__cat">Computer vision</p>
+            <h3 class="paper__title">The Cameras Are Already There</h3>
+            <p class="paper__desc">The honest path from plant CCTV to a live safety signal — including the pixel maths that decides which cameras can see a hard hat.</p>
+            <div class="paper__meta">
+              <span class="paper__specs">CA-R-02<br>6 pages · 11 min</span>
+              <a class="dl" href="assets/research/ppe-existing-cameras.pdf" download>
+                Download
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M3 13h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <article class="paper" data-cat="vision">
+          <a class="paper__cover" href="assets/research/counting-what-you-can-see.pdf" download>
+            <img src="assets/research/covers/counting-what-you-can-see.webp" width="707" height="1000" loading="lazy" decoding="async" alt="Cover of the paper Counting What You Can See">
+            <span class="paper__format">PDF</span>
+          </a>
+          <div class="paper__body">
+            <p class="paper__cat">Computer vision</p>
+            <h3 class="paper__title">Counting What You Can See</h3>
+            <p class="paper__desc">Camera-derived OEE for lines that never got sensors: micro-stops, changeover time, queue length, and the difference between blocked and starved.</p>
+            <div class="paper__meta">
+              <span class="paper__specs">CA-R-03<br>5 pages · 8 min</span>
+              <a class="dl" href="assets/research/counting-what-you-can-see.pdf" download>
+                Download
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M3 13h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <article class="paper" data-cat="vision">
+          <a class="paper__cover" href="assets/research/fill-level-inspection.pdf" download>
+            <img src="assets/research/covers/fill-level-inspection.webp" width="707" height="1000" loading="lazy" decoding="async" alt="Cover of the paper The Fill Line Is a Physics Problem">
+            <span class="paper__format">PDF</span>
+          </a>
+          <div class="paper__body">
+            <p class="paper__cat">Computer vision</p>
+            <h3 class="paper__title">The Fill Line Is a Physics Problem</h3>
+            <p class="paper__desc">Foam, meniscus, tinted glass and opaque containers decide whether fill-level inspection works long before any model does. Optics, reject logic, validation.</p>
+            <div class="paper__meta">
+              <span class="paper__specs">CA-R-04<br>4 pages · 8 min</span>
+              <a class="dl" href="assets/research/fill-level-inspection.pdf" download>
+                Download
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M3 13h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <article class="paper" data-cat="governance">
+          <a class="paper__cover" href="assets/research/watching-people.pdf" download>
+            <img src="assets/research/covers/watching-people.webp" width="707" height="1000" loading="lazy" decoding="async" alt="Cover of the paper Watching People">
+            <span class="paper__format">PDF</span>
+          </a>
+          <div class="paper__body">
+            <p class="paper__cat">Ethics &amp; governance</p>
+            <h3 class="paper__title">Watching People</h3>
+            <p class="paper__desc">A governance framework for workplace vision that survives scrutiny: purpose limitation, Zimbabwe's data protection Act, worker consultation, and our red lines.</p>
+            <div class="paper__meta">
+              <span class="paper__specs">CA-R-05<br>4 pages · 9 min</span>
+              <a class="dl" href="assets/research/watching-people.pdf" download>
+                Download
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M3 13h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <article class="paper" data-cat="security">
+          <a class="paper__cover" href="assets/research/first-72-hours.pdf" download>
+            <img src="assets/research/covers/first-72-hours.webp" width="707" height="1000" loading="lazy" decoding="async" alt="Cover of the paper The First 72 Hours">
+            <span class="paper__format">PDF</span>
+          </a>
+          <div class="paper__body">
+            <p class="paper__cat">Security</p>
+            <h3 class="paper__title">The First 72 Hours</h3>
+            <p class="paper__desc">An incident response field manual for systems that call a model: containment, evidence sources, rollback decisions, and the tabletop that finds your gaps.</p>
+            <div class="paper__meta">
+              <span class="paper__specs">CA-R-06<br>5 pages · 10 min</span>
+              <a class="dl" href="assets/research/first-72-hours.pdf" download>
+                Download
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M3 13h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <div class="paper__note">
+          <span><strong>No form, no email gate.</strong> Click a cover or the download button and the PDF saves to your machine.</span>
+          <a class="link-arrow" href="research.html">About the library</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       04 — Studio
+       ============================================================ -->
+  <section class="section" id="studio">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-head__top">
+          <p class="eyebrow">04 / The studio</p>
+          <p class="sec-head__meta">Harare · since 2023</p>
+        </div>
+        <h2 class="sec-head__title">Small studio. <em>Unglamorous work.</em></h2>
+      </div>
+
+      <div class="about">
+        <figure class="about__media reveal">
+          <img src="assets/img/supervisor-alert.webp"
+                 srcset="assets/img/supervisor-alert-sm.webp 760w, assets/img/supervisor-alert.webp 1408w"
+                 sizes="(max-width: 900px) 92vw, 520px" width="1408" height="768" loading="lazy" decoding="async"
+               alt="A shift supervisor in a hi-vis vest reading an alert on his phone on a plant walkway.">
+          <figcaption class="about__caption">
+            Shift change, packing hall. The only alert worth sending is the one a supervisor can act on.
+          </figcaption>
+        </figure>
+
+        <div class="about__body">
+          <p>
+            CloudyAI is an AI engineering studio in Harare. We started in incident response and AI security advisory,
+            and kept getting the same question from operations teams: <em>we already have cameras — can they tell us
+            anything useful?</em>
+          </p>
+          <p>
+            These days most of our work is computer vision on existing plant infrastructure, plus the governance and
+            cost control that keeps a deployment alive after the pilot. We are deliberately small: the person who
+            audits your cameras is the person who trains the model.
+          </p>
+
+          <div class="principles">
+            <div class="principle">
+              <span class="principle__n">01</span>
+              <div>
+                <h3>The camera audit comes first</h3>
+                <p>If your footage cannot support the check, we say so before anyone signs anything. That is cheaper for everyone.</p>
+              </div>
+            </div>
+            <div class="principle">
+              <span class="principle__n">02</span>
+              <div>
+                <h3>Video stays on site</h3>
+                <p>Inference runs on an edge box or your own server. Events and short clips leave the plant; raw continuous footage does not.</p>
+              </div>
+            </div>
+            <div class="principle">
+              <span class="principle__n">03</span>
+              <div>
+                <h3>The shift team is in the design</h3>
+                <p>Alerts are built around what a supervisor can act on at 06:20 — not what looks good in a dashboard demo.</p>
+              </div>
+            </div>
+          </div>
+
+          <p style="margin-top: 22px">
+            <a class="link-arrow" href="contact.html">Talk to us about a plant</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CTA
+       ============================================================ -->
+  <section class="cta-band">
+    <div class="wrap cta-band__inner">
+      <div>
+        <h2>Send us one camera still. We'll tell you what it can — and <em>can't</em> — see.</h2>
+        <p>Two working days, no charge, no deck. If the answer is no, you will hear it plainly.</p>
+      </div>
+      <div class="cta-band__actions">
+        <a class="btn" href="contact.html">Start with a still</a>
+        <a class="btn btn--ghost" href="research.html">Read the field notes</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ============================================================
+     Footer
+     ============================================================ -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="index.html"><span class="brand__mark" aria-hidden="true"></span>Cloudy<span class="brand__dot">AI</span></a>
+        <p class="footer__blurb">
+          Computer vision on the cameras you already own, and the security and governance work that keeps it deployable.
+          Built in Harare.
+        </p>
+        <div class="footer-contact">
+          <a href="mailto:sales@cloudyai.co.zw">sales@cloudyai.co.zw</a>
+          <a href="mailto:research@cloudyai.co.zw">research@cloudyai.co.zw</a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h3>Vision</h3>
+        <ul>
+          <li><a href="index.html#vision">PPE &amp; safety</a></li>
+          <li><a href="index.html#vision">Fill level</a></li>
+          <li><a href="index.html#vision">Assembly checks</a></li>
+          <li><a href="index.html#vision">Zones &amp; guarding</a></li>
+          <li><a href="index.html#vision">Counting &amp; OEE</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h3>Studio</h3>
+        <ul>
+          <li><a href="index.html#services">Services</a></li>
+          <li><a href="index.html#studio">About</a></li>
+          <li><a href="research.html">Research library</a></li>
+          <li><a href="leak-audit.html">Spend audit</a></li>
+          <li><a href="careers.html">Careers</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h3>Contact</h3>
+        <ul>
+          <li><a href="contact.html">Book a consultation</a></li>
+          <li><a href="mailto:sales@cloudyai.co.zw">sales@cloudyai.co.zw</a></li>
+          <li><a href="mailto:consulting@cloudyai.co.zw">consulting@cloudyai.co.zw</a></li>
+          <li><a href="mailto:careers@cloudyai.co.zw">careers@cloudyai.co.zw</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© <span id="year">2026</span> CloudyAI. All rights reserved.</p>
+      <p class="fine">No cookies, no analytics, no trackers on this site.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/site.js" defer></script>
+</body>
+</html>
